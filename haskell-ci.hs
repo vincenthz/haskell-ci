@@ -129,10 +129,10 @@ toTravis hash c = unlines $
         , (Y.key "extra-deps", Y.list $ map Y.string extraDeps)
         , (Y.key "flags", Y.dict (map toPkgFlag flags))
         ]
-      where 
+      where
         toPkgFlag (PackageFlag pkg flags) =
             (Y.key pkg, Y.dict $ map (\(flagName, enabled) -> (Y.key flagName, Y.string $ if enabled then "true" else "false")) flags )
-            
+
     envs = concatMap env (map toBuildTypes bs ++ optionalBuilds)
     failureEnvs = concatMap env (map toBuildTypes (filter isAllowedFailure bs) ++ optionalBuilds)
       where isAllowedFailure (Build _ simples _) = "allowed-failure" `elem` simples
@@ -163,6 +163,14 @@ escapeQuote (x:xs)
 
 main = do
     let hci = ".haskell-ci"
+        -- read and parse .haskell-ci
+        readHci = do
+            y <- doesFileExist hci
+            when (not y) $ do
+                hPutStrLn stderr
+                exitFailure
+            parse <$> readFile hci
+
     a <- getArgs
     case a of
         ["generate"] -> do
@@ -196,10 +204,13 @@ main = do
                 , "coverall: false"
                 ]
         ["travis"]      -> do
+            cfg <- readHci
             h   <- show . hashWith SHA256 <$> F.readFile ".haskell-ci"
-            cfg <- parse <$> readFile hci 
             putStrLn $ toTravis h cfg
             return ()
+        -- ["local-build"] -> do -- try to run all builds locally with every resolver capable on this system
+        --    cfg <- readHci
+        --    let builds = map (resolveBuilds cfg) $ builds cfg
         _            -> do
             hPutStrLn stderr "usage: haskell-ci [generate|travis]"
             exitFailure
