@@ -1,0 +1,27 @@
+name:                haskell-ci
+version:             "0.1"
+github:              "vincenthz/haskell-ci"
+license:             BSD3
+author:              "Vincent Hanquez"
+maintainer:          "vincent@snarc.org"
+copyright:           "Vincent Hanquez"
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on Github at <https://github.com/vincenthz/haskell-ci#readme>
+
+dependencies:
+- base >= 4.7 && < 10
+- foundation 
+- directory 
+- cryptonite 
+
+executables:
+  haskell-ci:
+    main:                haskell-ci.hs
+    source-dirs:         ./
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N

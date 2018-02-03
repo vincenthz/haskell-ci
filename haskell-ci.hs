@@ -167,7 +167,7 @@ main = do
         readHci = do
             y <- doesFileExist hci
             when (not y) $ do
-                hPutStrLn stderr
+                hPutStrLn stderr "error: no .haskell-ci file found"
                 exitFailure
             parse <$> readFile hci
 
