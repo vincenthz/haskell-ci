@@ -1,3 +1,5 @@
+{-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE DataKinds #-}
 module Config where
 
 import Data.Char
@@ -7,24 +9,25 @@ import Data.Either
 type SimpleOption = String
 type KvOption = (String, String)
 type CompilerName = String
+type BuildName = String
 
 data C = C
     { compilers :: [(CompilerName, String)]
-    , builds   :: [Build]
-    , options  :: [ (String, ([SimpleOption], [KvOption])) ]
-    , packages :: [String]
-    , hlint    :: Enabled
-    , weeder   :: Enabled
-    , coverall :: Enabled
+    , builds    :: [BuildEnv 'Unresolved]
+    , options   :: [ (String, ([SimpleOption], [KvOption])) ]
+    , packages  :: [String]
+    , hlint     :: Enabled
+    , weeder    :: Enabled
+    , coverall  :: Enabled
     }
     deriving (Show,Eq)
 
 data Enabled = Enabled | Disabled | AllowedFailure
     deriving (Show,Eq)
 
-data Build = Build CompilerName -- compiler name
-                   [SimpleOption]
-                   [KvOption]
+data BuildEnvStat = Resolved | Unresolved
+
+data BuildEnv (stat :: BuildEnvStat) = BuildEnv BuildName [SimpleOption] [KvOption]
     deriving (Show,Eq)
 
 compilerToLts :: C -> String -> String
@@ -43,7 +46,7 @@ parse = foldl' mkC (C [] [] [] [] Disabled Disabled Disabled)
     stripComment (x:xs)  = x:stripComment xs
 
     mkC acc l = case words l of
-        ("build:":compiler:opts)      -> acc { builds = builds acc ++ [parseBuild compiler opts] }
+        ("build:":name:opts)          -> acc { builds = builds acc ++ [parseBuild name opts] }
         ("compiler:":compiler:lts:[]) -> acc { compilers = compilers acc ++ [(compiler, lts)] }
         ("option:":optAlias:r)        -> acc { options = options acc ++ [(optAlias, parseOpts r)] }
         ("package:":pkg:[])           -> acc { packages = packages acc ++ [pkg] }
@@ -52,9 +55,9 @@ parse = foldl' mkC (C [] [] [] [] Disabled Disabled Disabled)
         ("coverall:":o:[])            -> acc { coverall = parseEnabled o }
         _                             -> error ("unknown line : " ++ show l)
 
-    parseBuild compiler opts =
+    parseBuild buildName opts =
         let (simple, kvs) = parseOpts opts
-         in Build compiler simple kvs
+         in BuildEnv buildName simple kvs
 
     parseOpts = partitionEithers . map parseOpt
     parseOpt o = case splitChar '=' o of

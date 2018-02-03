@@ -16,6 +16,7 @@ like weeder, hlint.
 
 * Create a new .haskell-ci file: `haskell-ci generate`
 * Create a travis file related to the .haskell-ci file: `haskell-ci travis > .travis.yml`
+* Create a stack.yaml related to a build environment: `haskell-ci stack ghc-7.10 > .stack.yaml`
 
 ## Config
 
