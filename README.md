@@ -16,12 +16,12 @@ like weeder, hlint.
 
 * Create a new .haskell-ci file: `haskell-ci generate`
 * Create a travis file related to the .haskell-ci file: `haskell-ci travis > .travis.yml`
-* Create a stack.yaml related to a build environment: `haskell-ci stack ghc-7.10 > .stack.yaml`
+* Create a stack.yaml related to a build environment: `haskell-ci stack ghc-7.10 > stack.yaml`
 
 ## Config
 
 haskell-ci looks for a `.haskell-ci` to translate into CI files
-for travis and in the future appveyor
+for travis, stack and in the future appveyor.
 
 Main options are
 
@@ -42,6 +42,9 @@ compiler: ghc-7.10 lts-6.35
 compiler: ghc-8.0 lts-9.21
 compiler: ghc-8.2 lts-10.4
 
+# support for extra builtin resolver like: ghc-8.4-alpha2
+compiler: ghc-8.4 ghc-8.4-alpha2
+
 # options
 option: myflag flag=mypackage:something
 
@@ -51,12 +54,13 @@ build: ghc-8.2
 build: ghc-7.10
 build: ghc-8.0 myflag package=extra-package/
 build: ghc-8.0 os=osx
+build: ghc-8.4
 
-# packages
+# packages to build
 package: '.'
 package: other-pkg/
 
-# extra builds
+# extra haskell tools builds
 hlint: allowed-failure
 weeder: allowed-failure
 coverall: false
