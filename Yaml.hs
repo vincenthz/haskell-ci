@@ -4,7 +4,9 @@ module Yaml
     , toString
     , dict
     , string
+    , qstring
     , key
+    , qkey
     , list
     ) where
 
@@ -17,6 +19,10 @@ newtype Key = Key String
 key :: String -> Key
 key = Key -- TODO escape
 
+qkey :: String -> Key
+qkey s = -- TODO escape
+    Key ("\"" ++ s ++ "\"")
+
 dict :: [(Key, Content)] -> Content
 dict [] = Content "{}"
 dict kv = Content ("{ " ++ intercalate ", " (map toKv kv) ++ " }")
@@ -24,6 +30,9 @@ dict kv = Content ("{ " ++ intercalate ", " (map toKv kv) ++ " }")
 
 string :: String -> Content
 string = Content
+
+qstring :: String -> Content
+qstring s = Content ("\"" ++ s ++ "\"")
 
 list :: [Content] -> Content
 list [] = Content "[]"

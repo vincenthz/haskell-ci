@@ -2,6 +2,7 @@
 compiler: ghc-7.10 lts-6.35
 compiler: ghc-8.0 lts-9.21
 compiler: ghc-8.2 lts-10.4
+compiler: ghc-8.4 ghc-8.4-alpha2
 
 # options
 # option: alias x=y z=v
@@ -11,6 +12,7 @@ build: ghc-8.2
 build: ghc-7.10 extradep=cryptonite-0.24 extradep=foundation-0.0.19 extradep=basement-0.0.6 extradep=memory-0.14.14
 build: ghc-8.0
 build: ghc-8.0 os=osx
+build: ghc-8.4 allowed-failure extradep=cryptonite-0.24 extradep=foundation-0.0.19 extradep=basement-0.0.6 extradep=memory-0.14.14
 
 # packages
 package: '.'
