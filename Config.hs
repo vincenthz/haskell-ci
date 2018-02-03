@@ -83,3 +83,12 @@ splitChar c s = case findIndex (== c) s of
                     Nothing  -> Nothing
                     Just idx -> let (l,r) = splitAt idx s in Just (l, tail r)
 
+-- resolve all options in a build
+resolveBuild :: C -> BuildEnv 'Unresolved -> BuildEnv 'Resolved
+resolveBuild c (BuildEnv x simples kvs) =
+    -- a simple option could map to something else
+    let mapped = map (\s -> case lookup s (options c) of
+                                    Nothing -> ([s], [])
+                                    Just p  -> p) simples
+     in BuildEnv x (concatMap fst mapped) (kvs ++ concatMap snd mapped)
+
