@@ -77,7 +77,7 @@ toTravis hash c = unlines $
       where
         matchLines build =
             [ "      " ++ buildName build ++ ")"
-            , "        echo \"" ++ stackYaml build ++ "\" > stack.yaml"
+            , "        echo \"" ++ escapeQuote (stackYaml build) ++ "\" > stack.yaml"
             , "        export HADDOCK_OPTs=\"" ++ haddockOpt ++ "\""
             , "        ;;"
             ]

@@ -23,12 +23,6 @@ import qualified Yaml as Y
 import qualified Foundation    as F
 import qualified Foundation.IO as F
 
-escapeQuote :: String -> String
-escapeQuote [] = []
-escapeQuote (x:xs)
-    | x == '='  = '\\' : '"' : escapeQuote xs
-    | otherwise = x : escapeQuote xs
-
 main = do
     let hci = ".haskell-ci"
         -- read and parse .haskell-ci
