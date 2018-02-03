@@ -43,7 +43,7 @@ makeBuildFromEnv c (BuildEnv compiler simple kvs) =
   where getFlags = map snd . filter ((==) "flag" . fst)
         parseFlag x = case splitChar ':' x of
                             Nothing -> error ("cannot parse flag " ++ x ++ " should be of the form \"packagename:(-)flagname\"")
-                            Just (p,f) | isPrefixOf "-" f -> (p, (f, False))
-                                       | otherwise        -> (p, (f, True))
+                            Just (p,f) | isPrefixOf "-" f -> (p, (tail f, False))
+                                       | otherwise        -> (p, (f     , True))
         toPkgFlag l = PackageFlag (head $ map fst l) (map snd l)
 
