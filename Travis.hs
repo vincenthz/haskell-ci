@@ -103,6 +103,7 @@ toTravis hash c = unlines $
             , (Y.key "compiler", Y.string compiler), language, addOn
             ] ++ (if ostype == OsX then [ (Y.key "os", Y.string "osx") ] else [])
         ]
-    addOn = (Y.key "addons", Y.dict [ (Y.key "apt", Y.dict [ (Y.key "packages", Y.list [ Y.string "libgmp-dev" ]) ] ) ])
+    addOn = (Y.key "addons", Y.dict [ (Y.key "apt", Y.dict [ (Y.key "packages", pkgs) ]) ] )
+      where pkgs = Y.list $ map Y.string (["libgmp-dev"] ++ travisAptAddOn c)
     language = (Y.key "language", Y.string "generic")
 

@@ -12,13 +12,14 @@ type CompilerName = String
 type BuildName = String
 
 data C = C
-    { compilers :: [(CompilerName, String)]
-    , builds    :: [BuildEnv 'Unresolved]
-    , options   :: [ (String, ([SimpleOption], [KvOption])) ]
-    , packages  :: [String]
-    , hlint     :: Enabled
-    , weeder    :: Enabled
-    , coverall  :: Enabled
+    { compilers      :: [(CompilerName, String)]
+    , builds         :: [BuildEnv 'Unresolved]
+    , options        :: [ (String, ([SimpleOption], [KvOption])) ]
+    , packages       :: [String]
+    , hlint          :: Enabled
+    , weeder         :: Enabled
+    , coverall       :: Enabled
+    , travisAptAddOn :: [String]
     }
     deriving (Show,Eq)
 
@@ -35,7 +36,7 @@ compilerToLts c s =
     maybe (error "cannot find compiler definition for " ++ s) id $ lookup s (compilers c)
 
 parse :: String -> C
-parse = foldl' mkC (C [] [] [] [] Disabled Disabled Disabled)
+parse = foldl' mkC (C [] [] [] [] Disabled Disabled Disabled [])
       . filter (\s -> not (null s || all isSpace s))
       . map stripComment
       . lines
@@ -53,6 +54,7 @@ parse = foldl' mkC (C [] [] [] [] Disabled Disabled Disabled)
         ("weeder:":o:[])              -> acc { weeder = parseEnabled o }
         ("hlint:":o:[])               -> acc { hlint = parseEnabled o }
         ("coverall:":o:[])            -> acc { coverall = parseEnabled o }
+        ("travis-apt-addon:":o:[])    -> acc { travisAptAddOn = travisAptAddOn acc ++ [o] }
         _                             -> error ("unknown line : " ++ show l)
 
     parseBuild buildName opts =
