@@ -35,7 +35,8 @@ ghc84alpha2 = ResolverParameters "ghc-8.4-alpha2" compilerVer targets
     targets = 
         [ Target "linux32-nopie" compilerVer (url "ghc-8.4.0.20180118-i386-deb8-linux.tar.xz") "be1a3b5de9f671199533d22f2810d9b62c6392b32b39833cd384a094566703c6"
         , Target "windows32" compilerVer (url "ghc-8.4.0.20180118-i386-unknown-mingw32.tar.xz") "3f4b9291ad35d89ca7b3561312a4329545aedceb5c4c8c5c4cf01550037376a1"
-        , Target "linux64-tinfo" compilerVer (url "ghc-8.4.0.20180118-x86_64-fedora27-linux.tar.xz") "47c7e4350c9560f984bde75b243aa10c91e37494152d87d20f84fcee857338ef"
+        , Target "linux64" compilerVer (url "ghc-8.4.0.20180118-x86_64-deb8-linux.tar.xz") "55b54bce14661c19288c3413b8fab95d2b7fae407986323c7f0b6a732bec6a38"
+        , Target "linux64-tinfo" compilerVer (url "ghc-8.4.0.20180118-x86_64-deb8-linux.tar.xz") "55b54bce14661c19288c3413b8fab95d2b7fae407986323c7f0b6a732bec6a38"
         , Target "linux64-tinfo6" compilerVer (url "ghc-8.4.0.20180118-x86_64-fedora27-linux.tar.xz") "47c7e4350c9560f984bde75b243aa10c91e37494152d87d20f84fcee857338ef"
         , Target "linux64-tinfo-nopie" compilerVer (url "ghc-8.4.0.20180118-x86_64-fedora27-linux.tar.xz") "47c7e4350c9560f984bde75b243aa10c91e37494152d87d20f84fcee857338ef"
         , Target "linux64-nopie" compilerVer (url "ghc-8.4.0.20180118-x86_64-deb8-linux.tar.xz") "55b54bce14661c19288c3413b8fab95d2b7fae407986323c7f0b6a732bec6a38"
