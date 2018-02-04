@@ -20,6 +20,7 @@ data C = C
     , weeder         :: Enabled
     , coverall       :: Enabled
     , travisAptAddOn :: [String]
+    , travisTests    :: [String]
     }
     deriving (Show,Eq)
 
@@ -36,7 +37,7 @@ compilerToLts c s =
     maybe (error "cannot find compiler definition for " ++ s) id $ lookup s (compilers c)
 
 parse :: String -> C
-parse = foldl' mkC (C [] [] [] [] Disabled Disabled Disabled [])
+parse = foldl' mkC (C [] [] [] [] Disabled Disabled Disabled [] [])
       . filter (\s -> not (null s || all isSpace s))
       . map stripComment
       . lines
@@ -55,6 +56,7 @@ parse = foldl' mkC (C [] [] [] [] Disabled Disabled Disabled [])
         ("hlint:":o:[])               -> acc { hlint = parseEnabled o }
         ("coverall:":o:[])            -> acc { coverall = parseEnabled o }
         ("travis-apt-addon:":o:[])    -> acc { travisAptAddOn = travisAptAddOn acc ++ [o] }
+        ("travis-tests:":l)           -> acc { travisTests = travisTests acc ++ [unwords l] }
         _                             -> error ("unknown line : " ++ show l)
 
     parseBuild buildName opts =

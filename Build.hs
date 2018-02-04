@@ -24,6 +24,7 @@ data Build = Build
     , buildPackages   :: [String]
     , buildExtraDeps  :: [String]
     , buildUseHaddock :: Bool
+    , buildAllowNewer :: Bool
     } deriving (Show,Eq)
 
 makeBuildFromEnv :: C -> BuildEnv 'Resolved -> Build
@@ -39,6 +40,7 @@ makeBuildFromEnv c (BuildEnv compiler simple kvs) =
               , buildPackages    = packages c ++ extraPkgs
               , buildExtraDeps   = extraDeps
               , buildUseHaddock  = not noHaddock
+              , buildAllowNewer  = elem "allow-newer" simple
               }
   where getFlags = map snd . filter ((==) "flag" . fst)
         parseFlag x = case splitChar ':' x of

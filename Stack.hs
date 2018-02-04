@@ -10,7 +10,7 @@ stackYaml build = Y.toString $ Y.dict $
     [ (Y.key "packages", Y.list $ map Y.string (buildPackages build))
     , (Y.key "extra-deps", Y.list $ map Y.string (buildExtraDeps build))
     , (Y.key "flags", Y.dict (map toPkgFlag $ buildFlags build))
-    ]
+    ] ++ (if buildAllowNewer build then [(Y.key "allow-newer", Y.string "true")] else [])
   where
     resolver = classifyResolver (buildResolver build)
     toPkgFlag (PackageFlag pkg flags) =
