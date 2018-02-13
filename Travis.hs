@@ -55,7 +55,8 @@ toTravis hash c = unlines $
     [ "      esac"
     , "      # build & run test"
     , "      stack --no-terminal test --install-ghc --coverage --bench --no-run-benchmarks ${HADDOCK_OPTS}"
-    , "      ;;"
+    ] ++ postTests ++
+    [ "      ;;"
     , "    hlint)"
     , "      curl -sL https://raw.github.com/ndmitchell/hlint/master/misc/travis.sh | sh -s . --cpp-define=__GLASGOW_HASKELL__=800 --cpp-define=x86_64_HOST_ARCH=1 --cpp-define=mingw32_HOST_OS=1"
     , "      ;;"
@@ -69,6 +70,10 @@ toTravis hash c = unlines $
   where
     -- resolved build
     bs = map (resolveBuild c) $ builds c
+
+    postTests :: [String]
+    postTests =
+        map ("      " ++) $ travisTests c
 
     optionalBuilds =
         [ BuildHLint, BuildWeeder ]
