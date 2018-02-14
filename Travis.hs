@@ -5,6 +5,7 @@ import           Build
 import           Utils
 import           Stack
 import qualified Yaml as Y
+import           Data.Maybe (catMaybes)
 
 toTravis :: Digest SHA256 -> C -> String
 toTravis hash c = unlines $
@@ -53,8 +54,6 @@ toTravis hash c = unlines $
     , "      case \"$RESOLVER\" in"
     ] ++ scriptResolverCase ++
     [ "      esac"
-    , "      # build & run test"
-    , "      stack --no-terminal test --install-ghc --coverage --bench --no-run-benchmarks ${HADDOCK_OPTS}"
     ] ++ postTests ++
     [ "      ;;"
     , "    hlint)"
@@ -83,18 +82,32 @@ toTravis hash c = unlines $
         matchLines build =
             [ "      " ++ buildName build ++ ")"
             , "        echo \"" ++ escapeQuote (stackYaml build) ++ "\" > stack.yaml"
-            , "        export HADDOCK_OPTs=\"" ++ haddockOpt ++ "\""
+            , "        " ++ unwords ("stack" : stackOpts)
             , "        ;;"
             ]
-         where haddockOpt | buildUseHaddock build = "--haddock --no-haddock-deps"
-                          | otherwise             = "--no-haddock"
+         where
+               stackOpts =
+                    ["--no-terminal", "build", "--install-ghc", "--coverage"] ++ testOpt ++ benchOpt ++ haddockOpt
+
+               haddockOpt | buildUseHaddock build = ["--haddock", "--no-haddock-deps"]
+                          | otherwise             = ["--no-haddock"]
+
+               benchOpt = case buildBenchs build of
+                             JustCompile -> ["--bench", "--no-run-benchmarks"] -- compile bench, don't run them
+                             RunCompile  -> ["--bench"]                        -- compile bench, run bench
+                             NotCompiled -> ["--no-bench"]                     -- don't compile bench
+             
+               testOpt = case buildTests build of
+                            JustCompile -> ["--test", "--no-run-tests"] -- compile test, don't run them
+                            RunCompile  -> ["--test"]                   -- compile test, run them
+                            NotCompiled -> ["--no-test"]                -- don't compile test
 
     envs = concatMap env (map toBuildTypes bs ++ optionalBuilds)
     failureEnvs = concatMap env (map toBuildTypes (filter isAllowedFailure bs) ++ optionalBuilds)
-      where isAllowedFailure (BuildEnv _ simples _) = "allowed-failure" `elem` simples
+      where isAllowedFailure (BuildEnv _ simples _) = AllowedFailure `elem` simples
 
     toBuildTypes (BuildEnv r simples kvs) =
-        BuildStack r (maybe Linux (\os -> if os == "osx" then OsX else Linux) $ lookup "os" kvs)
+        BuildStack r (maybe Linux (\os -> if os == "osx" then OsX else Linux) $ lookup Os kvs)
 
     env BuildHLint =
         [ (++) "  - " $ Y.toString $ Y.dict

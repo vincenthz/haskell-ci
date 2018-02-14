@@ -1,5 +1,6 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE PatternSynonyms #-}
 module Config where
 
 import Data.Char
@@ -24,7 +25,7 @@ data C = C
     }
     deriving (Show,Eq)
 
-data Enabled = Enabled | Disabled | AllowedFailure
+data Enabled = Enabled | Disabled | EnabledLenient
     deriving (Show,Eq)
 
 data BuildEnvStat = Resolved | Unresolved
@@ -75,7 +76,7 @@ parse = foldl' mkC (C [] [] [] [] Disabled Disabled Disabled [] [])
 
     parseEnabled "0" = Disabled
     parseEnabled "false" = Disabled
-    parseEnabled "allowed-failure" = AllowedFailure
+    parseEnabled "allowed-failure" = EnabledLenient
     parseEnabled s = error ("parsing enable flag: unknown " ++ show s)
 
 -- | Try to split a string
@@ -96,3 +97,44 @@ resolveBuild c (BuildEnv x simples kvs) =
                                     Just p  -> p) simples
      in BuildEnv x (concatMap fst mapped) (kvs ++ concatMap snd mapped)
 
+allSingleOptions =
+    [ NoHaddock
+    , AllowNewer
+    , AllowedFailure
+    ]
+
+allKvOptions =
+    [ Package
+    , ExtraDep
+    , Flag
+    , Os
+    , Benchs
+    , Tests
+    ]
+
+pattern NoHaddock :: String
+pattern NoHaddock = "nohaddock"
+
+pattern Tests :: String
+pattern Tests = "tests"
+
+pattern Benchs :: String
+pattern Benchs = "benchs"
+
+pattern Package :: String
+pattern Package = "package"
+
+pattern ExtraDep :: String
+pattern ExtraDep = "extradep"
+
+pattern Flag :: String
+pattern Flag = "flag"
+
+pattern AllowNewer :: String
+pattern AllowNewer = "allow-newer"
+
+pattern Os :: String
+pattern Os = "os"
+
+pattern AllowedFailure :: String
+pattern AllowedFailure = "allowed-failure"
