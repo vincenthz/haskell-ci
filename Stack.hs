@@ -18,6 +18,6 @@ stackYaml build = Y.toString $ Y.dict $
 
 writeDependency (DependencySimple s) = Y.string s
 writeDependency (DependencyGit (GitDependency loc mcom subdirs)) =
-    Y.dict $ [ (Y.key "git", Y.string loc) ]
-          ++ (maybe [] (\c -> [(Y.key "commit", Y.string c)]) mcom)
-          ++ (if null subdirs then [] else [ (Y.key "subdirs", Y.list $ map Y.string subdirs) ])
+    Y.dict $ [ (Y.key "git", Y.qstring loc) ]
+          ++ (maybe [] (\c -> [(Y.key "commit", Y.qstring c)]) mcom)
+          ++ (if null subdirs then [] else [ (Y.key "subdirs", Y.list $ map Y.qstring subdirs) ])
