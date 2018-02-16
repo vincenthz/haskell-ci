@@ -12,16 +12,19 @@ type KvOption = (String, String)
 type CompilerName = String
 type BuildName = String
 
+type ListMap k v = [(k, v)]
+
 data C = C
     { compilers      :: [(CompilerName, String)]
     , builds         :: [BuildEnv 'Unresolved]
-    , options        :: [ (String, ([SimpleOption], [KvOption])) ]
+    , options        :: ListMap String ([SimpleOption], [KvOption])
     , packages       :: [String]
     , hlint          :: Enabled
     , weeder         :: Enabled
     , coverall       :: Enabled
     , travisAptAddOn :: [String]
     , travisTests    :: [String]
+    , gitDeps        :: ListMap String (String, String)
     }
     deriving (Show,Eq)
 
@@ -29,6 +32,7 @@ data Enabled = Enabled | Disabled | EnabledLenient
     deriving (Show,Eq)
 
 data BuildEnvStat = Resolved | Unresolved
+    deriving (Show,Eq)
 
 data BuildEnv (stat :: BuildEnvStat) = BuildEnv BuildName [SimpleOption] [KvOption]
     deriving (Show,Eq)
@@ -38,7 +42,7 @@ compilerToLts c s =
     maybe (error "cannot find compiler definition for " ++ s) id $ lookup s (compilers c)
 
 parse :: String -> C
-parse = foldl' mkC (C [] [] [] [] Disabled Disabled Disabled [] [])
+parse = foldl' mkC (C [] [] [] [] Disabled Disabled Disabled [] [] [])
       . filter (\s -> not (null s || all isSpace s))
       . map stripComment
       . lines
@@ -48,17 +52,20 @@ parse = foldl' mkC (C [] [] [] [] Disabled Disabled Disabled [] [])
     stripComment ('#':_) = []
     stripComment (x:xs)  = x:stripComment xs
 
+    appendEnd l s = l ++ [s]
+
     mkC acc l = case words l of
-        ("build:":name:opts)          -> acc { builds = builds acc ++ [parseBuild name opts] }
-        ("compiler:":compiler:lts:[]) -> acc { compilers = compilers acc ++ [(compiler, lts)] }
-        ("option:":optAlias:r)        -> acc { options = options acc ++ [(optAlias, parseOpts r)] }
-        ("package:":pkg:[])           -> acc { packages = packages acc ++ [pkg] }
-        ("weeder:":o:[])              -> acc { weeder = parseEnabled o }
-        ("hlint:":o:[])               -> acc { hlint = parseEnabled o }
-        ("coverall:":o:[])            -> acc { coverall = parseEnabled o }
-        ("travis-apt-addon:":o:[])    -> acc { travisAptAddOn = travisAptAddOn acc ++ [o] }
-        ("travis-tests:":l)           -> acc { travisTests = travisTests acc ++ [unwords l] }
-        _                             -> error ("unknown line : " ++ show l)
+        ("build:":name:opts)                -> acc { builds = builds acc `appendEnd` parseBuild name opts }
+        ("gitdep:":name:location:commit:[]) -> acc { gitDeps = gitDeps acc `appendEnd` (name, (location, commit)) }
+        ("compiler:":compiler:lts:[])       -> acc { compilers = compilers acc `appendEnd` (compiler, lts) }
+        ("option:":optAlias:r)              -> acc { options = options acc `appendEnd` (optAlias, parseOpts r) }
+        ("package:":pkg:[])                 -> acc { packages = packages acc `appendEnd` pkg }
+        ("weeder:":o:[])                    -> acc { weeder = parseEnabled o }
+        ("hlint:":o:[])                     -> acc { hlint = parseEnabled o }
+        ("coverall:":o:[])                  -> acc { coverall = parseEnabled o }
+        ("travis-apt-addon:":o:[])          -> acc { travisAptAddOn = travisAptAddOn acc `appendEnd` o }
+        ("travis-tests:":l)                 -> acc { travisTests = travisTests acc `appendEnd` unwords l }
+        _                                   -> error ("unknown line : " ++ show l)
 
     parseBuild buildName opts =
         let (simple, kvs) = parseOpts opts
@@ -79,6 +86,7 @@ parse = foldl' mkC (C [] [] [] [] Disabled Disabled Disabled [] [])
     parseEnabled "allowed-failure" = EnabledLenient
     parseEnabled s = error ("parsing enable flag: unknown " ++ show s)
 
+
 -- | Try to split a string
 -- 
 -- > splitChar '=' "abc=def"
@@ -97,6 +105,11 @@ resolveBuild c (BuildEnv x simples kvs) =
                                     Just p  -> p) simples
      in BuildEnv x (concatMap fst mapped) (kvs ++ concatMap snd mapped)
 
+checkConfig :: C -> [String]
+checkConfig c = undefined
+  where
+    aliases = map fst $ options c
+
 allSingleOptions =
     [ NoHaddock
     , AllowNewer
@@ -106,6 +119,7 @@ allSingleOptions =
 allKvOptions =
     [ Package
     , ExtraDep
+    , GitDep
     , Flag
     , Os
     , Benchs
@@ -126,6 +140,9 @@ pattern Package = "package"
 
 pattern ExtraDep :: String
 pattern ExtraDep = "extradep"
+
+pattern GitDep :: String
+pattern GitDep = "gitdep"
 
 pattern Flag :: String
 pattern Flag = "flag"

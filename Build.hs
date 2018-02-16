@@ -19,12 +19,23 @@ data BuildType = BuildWeeder
                | BuildStack String OsType
     deriving (Show,Eq)
 
+data GitDependency = GitDependency
+    { gitLocation :: String
+    , gitCommit   :: Maybe String
+    , gitSubdirs  :: [String]
+    } deriving (Show,Eq)
+
+data Dependency =
+      DependencySimple String
+    | DependencyGit    GitDependency
+    deriving (Show,Eq)
+
 data Build = Build
     { buildName       :: String
     , buildResolver   :: String
     , buildFlags      :: [PackageFlag]
     , buildPackages   :: [String]
-    , buildExtraDeps  :: [String]
+    , buildExtraDeps  :: [Dependency]
     , buildUseHaddock :: Bool
     , buildAllowNewer :: Bool
     , buildTests      :: RunOpt
@@ -46,7 +57,8 @@ makeBuildFromEnv c (BuildEnv compiler simple kvs) =
     let resolver = compilerToLts c compiler
         flags = map toPkgFlag $ groupBy ((==)  `on` fst) $ map parseFlag $ getFlags kvs
         extraPkgs = map snd $ filter ((==) Package . fst) kvs
-        extraDeps = map snd $ filter ((==) ExtraDep . fst) kvs
+        extraDeps = (map (DependencySimple . snd) $ filter ((==) ExtraDep . fst) kvs)
+                 ++ (map (DependencyGit . toGit . snd) $ filter ((==) GitDep . fst) kvs)
         tests = maybe RunCompile id $ lastMaybe $ catMaybes $ map (toRunOpt . snd) $ filter ((==) Tests . fst) kvs
         benchs = maybe JustCompile id $ lastMaybe $ catMaybes $ map (toRunOpt . snd) $ filter ((==) Benchs . fst) kvs
         noHaddock = elem NoHaddock simple
@@ -66,3 +78,8 @@ makeBuildFromEnv c (BuildEnv compiler simple kvs) =
                             Just (p,f) | isPrefixOf "-" f -> (p, (tail f, False))
                                        | otherwise        -> (p, (f     , True))
         toPkgFlag l = PackageFlag (head $ map fst l) (map snd l)
+
+        toGit name =
+            case lookup name (gitDeps c) of
+                Just (loc, com) -> GitDependency loc (Just com) []
+                Nothing         -> error ("cannot find git dependency for " ++ name ++ "; did you forget a \"gitdep: " ++ name ++ " <location> <git>\" ?")
