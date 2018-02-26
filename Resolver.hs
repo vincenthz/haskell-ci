@@ -45,8 +45,9 @@ ghc84alpha2 = ResolverParameters "ghc-8.4-alpha2" compilerVer targets
         ]
 
 ghc84rc1 :: ResolverParameters
-ghc84rc4 = ResolverParameters "ghc-8.4-rc1" compilerVer targets
+ghc84rc1 = ResolverParameters "ghc-8.4-rc1" compilerVer targets
   where
+    url s = "https://downloads.haskell.org/~ghc/8.4.1-rc1/" ++ s
     compilerVer = "8.4.0.20180224"
     targets =
         [ Target "windows64" compilerVer (url "ghc-8.4.0.20180224-x86_64-unknown-mingw32.tar.xz") "7d125b3bbaa2ec4022215787a259a41bf944ec02736c9555f2a19432eef21cad"
