@@ -57,7 +57,7 @@ ghc84rc1 = ResolverParameters "ghc-8.4-rc1" compilerVer targets
         , Target "linux32-nopie" compilerVer (url "ghc-8.4.0.20180224-i386-deb8-linux.tar.xz") "ce2f7583c64b700b22281a488e9a950ee50ec756a83520e3360748f67e14bfa2"
         , Target "linux64-nopie" compilerVer (url "ghc-8.4.0.20180224-x86_64-deb8-linux.tar.xz") "a83b57a600b513f689716e98b53badfb2e2aa1117bff7c5bab12c07854eecb07"
         , Target "linux64-tinfo-nopie" compilerVer (url "ghc-8.4.0.20180224-x86_64-deb8-linux.tar.xz") "a83b57a600b513f689716e98b53badfb2e2aa1117bff7c5bab12c07854eecb07"
-        , Target "linux64-tinfo6-nopie" compilerVer (url "ghc-8.4.0.20180224-x86_64-fedora27-linux.tar.xz") "34240b8055e81f78a58becd1351ce03235e1bb3fd14c419a7e97631514a780ad"
+        , Target "linux64-tinfo6" compilerVer (url "ghc-8.4.0.20180224-x86_64-fedora27-linux.tar.xz") "34240b8055e81f78a58becd1351ce03235e1bb3fd14c419a7e97631514a780ad"
         ]
 
 
