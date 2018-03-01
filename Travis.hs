@@ -74,8 +74,14 @@ toTravis hash c = unlines $
     postTests =
         map ("      " ++) $ travisTests c
 
-    optionalBuilds =
-        [ BuildHLint, BuildWeeder ]
+    toolsBuilds = catMaybes [ enabledToMaybe (hlint c) BuildHLint, enabledToMaybe (weeder c) BuildWeeder ]
+      where enabledToMaybe Enabled        = Just
+            enabledToMaybe EnabledLenient = Just
+            enabledToMaybe Disabled       = const Nothing
+    toolsOptionalBuilds = catMaybes [ enabledToMaybe (hlint c) BuildHLint, enabledToMaybe (weeder c) BuildWeeder ]
+      where enabledToMaybe Enabled        = const Nothing
+            enabledToMaybe EnabledLenient = Just
+            enabledToMaybe Disabled       = const Nothing
 
     scriptResolverCase = concatMap matchLines $ map (makeBuildFromEnv c) $ bs
       where
@@ -102,8 +108,8 @@ toTravis hash c = unlines $
                             RunCompile  -> ["--test"]                   -- compile test, run them
                             NotCompiled -> ["--no-test"]                -- don't compile test
 
-    envs = concatMap env (map toBuildTypes bs ++ optionalBuilds)
-    failureEnvs = concatMap env (map toBuildTypes (filter isAllowedFailure bs) ++ optionalBuilds)
+    envs = concatMap env (map toBuildTypes bs ++ toolsBuilds)
+    failureEnvs = concatMap env (map toBuildTypes (filter isAllowedFailure bs) ++ toolsOptionalBuilds)
       where isAllowedFailure (BuildEnv _ simples _) = AllowedFailure `elem` simples
 
     toBuildTypes (BuildEnv r simples kvs) =
