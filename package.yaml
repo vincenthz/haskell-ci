@@ -12,10 +12,12 @@ copyright:           "Vincent Hanquez"
 description:         Please see the README on Github at <https://github.com/vincenthz/haskell-ci#readme>
 
 dependencies:
-- base >= 4.7 && < 10
-- foundation 
-- directory 
-- cryptonite 
+- base >= 0 && < 10
+- foundation
+- basement
+- directory
+- memory
+- cryptonite
 
 executables:
   haskell-ci:

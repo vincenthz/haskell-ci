@@ -19,9 +19,9 @@ data C = C
     , builds         :: [BuildEnv 'Unresolved]
     , options        :: ListMap String ([SimpleOption], [KvOption])
     , packages       :: [String]
-    , hlint          :: Enabled
-    , weeder         :: Enabled
-    , coverall       :: Enabled
+    , hlint          :: !Enabled
+    , weeder         :: !Enabled
+    , coverall       :: !Enabled
     , travisAptAddOn :: [String]
     , travisTests    :: [String]
     , gitDeps        :: ListMap String (String, String)
