@@ -22,7 +22,7 @@ dependencies:
 executables:
   haskell-ci:
     main:                haskell-ci.hs
-    source-dirs:         ./
+    source-dirs:         ./src
     ghc-options:
     - -threaded
     - -rtsopts
