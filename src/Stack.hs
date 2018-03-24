@@ -40,3 +40,10 @@ writeDependency (DependencyGit (GitDependency loc mcom subdirs)) =
     Y.dict $ [ (Y.key "git", Y.qstring loc) ]
           ++ (maybe [] (\c -> [(Y.key "commit", Y.qstring c)]) mcom)
           ++ (if null subdirs then [] else [ (Y.key "subdirs", Y.list $ map Y.qstring subdirs) ])
+
+stackUrl :: OsType -> String
+stackUrl Win64 = "https://www.stackage.org/stack/windows-x86_64"
+stackUrl Win32 = "https://www.stackage.org/stack/windows-i386"
+stackUrl OsX = "https://www.stackage.org/stack/osx-x86_64"
+stackUrl FreeBSD = "https://www.stackage.org/stack/freebsd-x86_64"
+stackUrl Linux   = "https://www.stackage.org/stack/linux-x86_64"

@@ -5,9 +5,11 @@ import Config
 import Utils
 import Data.List
 import Data.Function (on)
+import Data.Char (toLower)
 import Data.Maybe (catMaybes)
+import Foundation.Collection (Sequential(splitOn))
 
-data OsType = Linux | OsX | Win
+data OsType = Linux | OsX | FreeBSD | Win32 | Win64
     deriving (Show,Eq)
 
 data PackageFlag = PackageFlag String           -- ^ package name
@@ -40,6 +42,7 @@ data Build = Build
     , buildAllowNewer :: Bool
     , buildTests      :: RunOpt
     , buildBenchs     :: RunOpt
+    , buildPlatforms  :: [OsType]
     } deriving (Show,Eq)
 
 data RunOpt = NotCompiled | JustCompile | RunCompile
@@ -51,6 +54,9 @@ toRunOpt "compile" = Just JustCompile
 toRunOpt "run"     = Just RunCompile
 toRunOpt _         = Nothing
 
+
+defaultPlatform :: [OsType]
+defaultPlatform = [Linux]
 
 makeBuildFromEnv :: C -> BuildEnv 'Resolved -> Build
 makeBuildFromEnv c (BuildEnv compiler simple kvs) =
@@ -71,6 +77,7 @@ makeBuildFromEnv c (BuildEnv compiler simple kvs) =
               , buildAllowNewer  = elem AllowNewer simple
               , buildTests       = tests
               , buildBenchs      = benchs
+              , buildPlatforms   = maybe defaultPlatform parsePlatform $ lookup Os kvs
               }
   where getFlags = map snd . filter ((==) Flag . fst)
         parseFlag x = case splitChar ':' x of
@@ -78,6 +85,22 @@ makeBuildFromEnv c (BuildEnv compiler simple kvs) =
                             Just (p,f) | isPrefixOf "-" f -> (p, (tail f, False))
                                        | otherwise        -> (p, (f     , True))
         toPkgFlag l = PackageFlag (head $ map fst l) (map snd l)
+
+        parsePlatform x
+            | null w    = defaultPlatform
+            | otherwise = nub w
+          where
+            w = catMaybes $ map (toPlatform . map toLower) $ splitOn (== ',') x
+
+            toPlatform "linux"     = Just Linux
+            toPlatform "freebsd"   = Just FreeBSD
+            toPlatform "win32"     = Just Win32
+            toPlatform "windows32" = Just Win32
+            toPlatform "win"       = Just Win64
+            toPlatform "windows"   = Just Win64
+            toPlatform "osx"       = Just OsX
+            toPlatform "macosx"    = Just OsX
+            toPlatform _           = Nothing
 
         toGit name =
             case lookup name (gitDeps c) of
