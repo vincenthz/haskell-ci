@@ -20,6 +20,7 @@ import           Build
 import           Resolver
 import           Utils
 import           Travis
+import           Appveyor
 import           Stack
 import qualified Yaml as Y
 import qualified Foundation    as F
@@ -27,13 +28,27 @@ import qualified Foundation    as F
 import           Foundation.Collection (nonEmpty, head, getNonEmpty)
 import           Prelude hiding (head)
 
+hci = ".haskell-ci"
+
+-- read and parse .haskell-ci
+readHci = do
+    y <- doesFileExist hci
+    when (not y) $ quitWith "no .haskell-ci file found"
+    parse . force <$> readFile hci
+
+cmdAppveyor = do
+    cfg <- readHci
+    h   <- readHciHash
+    putStrLn $ toAppveyor h cfg
+    return ()
+
+cmdTravis = do
+    cfg <- readHci
+    h   <- readHciHash
+    putStrLn $ toTravis h cfg
+    return ()
+
 main = do
-    let hci = ".haskell-ci"
-        -- read and parse .haskell-ci
-        readHci = do
-            y <- doesFileExist hci
-            when (not y) $ quitWith "no .haskell-ci file found"
-            parse . force <$> readFile hci
 
     a <- getArgs
     case a of
@@ -75,11 +90,8 @@ main = do
                 , "# travis-apt-addon: packagename"
                 , "# travis-tests: post-script"
                 ]
-        ["travis"]      -> do
-            cfg <- readHci
-            h   <- readHciHash
-            putStrLn $ toTravis h cfg
-            return ()
+        ["appveyor"]    -> cmdAppveyor
+        ["travis"]      -> cmdTravis
         ("stack":name:[]) -> do
             cfg <- readHci
             h   <- readHciHash
