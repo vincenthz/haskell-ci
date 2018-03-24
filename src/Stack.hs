@@ -4,6 +4,25 @@ import           Build
 import           Resolver
 import qualified Yaml as Y
 
+stackBuildCommand :: Build -> [String]
+stackBuildCommand build = "stack" : stackOpts
+  where
+       stackOpts =
+            ["--no-terminal", "build", "--install-ghc", "--coverage"] ++ testOpt ++ benchOpt ++ haddockOpt
+
+       haddockOpt | buildUseHaddock build = ["--haddock", "--no-haddock-deps"]
+                  | otherwise             = ["--no-haddock"]
+
+       benchOpt = case buildBenchs build of
+                     JustCompile -> ["--bench", "--no-run-benchmarks"] -- compile bench, don't run them
+                     RunCompile  -> ["--bench"]                        -- compile bench, run bench
+                     NotCompiled -> ["--no-bench"]                     -- don't compile bench
+
+       testOpt = case buildTests build of
+                    JustCompile -> ["--test", "--no-run-tests"] -- compile test, don't run them
+                    RunCompile  -> ["--test"]                   -- compile test, run them
+                    NotCompiled -> ["--no-test"]                -- don't compile test
+
 stackYaml :: Build -> String
 stackYaml build = Y.toString $ Y.dict $
     resolverToYaml resolver ++
