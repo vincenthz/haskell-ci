@@ -14,6 +14,7 @@ type BuildName = String
 
 type ListMap k v = [(k, v)]
 
+-- | Config file
 data C = C
     { compilers      :: [(CompilerName, String)]
     , builds         :: [BuildEnv 'Unresolved]
@@ -34,6 +35,7 @@ data Enabled = Enabled | Disabled | EnabledLenient
 data BuildEnvStat = Resolved | Unresolved
     deriving (Show,Eq)
 
+-- | Config Build Environment with a name, and the options (simple, and key-value)
 data BuildEnv (stat :: BuildEnvStat) = BuildEnv BuildName [SimpleOption] [KvOption]
     deriving (Show,Eq)
 

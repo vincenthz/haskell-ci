@@ -6,7 +6,7 @@ import Utils
 import Data.List
 import Data.Function (on)
 import Data.Char (toLower)
-import Data.Maybe (catMaybes)
+import Data.Maybe (mapMaybe, catMaybes)
 import Foundation.Collection (Sequential(splitOn))
 
 data OsType = Linux | OsX | FreeBSD | Win32 | Win64
@@ -90,7 +90,7 @@ makeBuildFromEnv c (BuildEnv compiler simple kvs) =
             | null w    = defaultPlatform
             | otherwise = nub w
           where
-            w = catMaybes $ map (toPlatform . map toLower) $ splitOn (== ',') x
+            w = mapMaybe (toPlatform . map toLower) $ splitOn (== ',') x
 
             toPlatform "linux"     = Just Linux
             toPlatform "freebsd"   = Just FreeBSD
@@ -100,6 +100,7 @@ makeBuildFromEnv c (BuildEnv compiler simple kvs) =
             toPlatform "windows"   = Just Win64
             toPlatform "osx"       = Just OsX
             toPlatform "macosx"    = Just OsX
+            toPlatform "macos"     = Just OsX
             toPlatform _           = Nothing
 
         toGit name =

@@ -7,6 +7,7 @@ import           Stack
 import qualified Yaml as Y
 import           Data.Maybe (catMaybes)
 import           TextGen.Out
+import           Foundation.Collection (Sequential(splitOn))
 
 toTravis :: Digest SHA256 -> C -> String
 toTravis hash c = runOut $ mapM_ outNl $
@@ -53,7 +54,7 @@ toTravis hash c = runOut $ mapM_ outNl $
     , "    stack)"
     , "      # create the build stack.yaml"
     , "      case \"$RESOLVER\" in"
-    ] ++ scriptResolverCase ++
+    ] ++ scriptResolverCases ++
     [ "      esac"
     ] ++ postTests ++
     [ "      ;;"
@@ -75,6 +76,7 @@ toTravis hash c = runOut $ mapM_ outNl $
     postTests =
         map ("      " ++) $ travisTests c
 
+    -- create the weeder, hlint (and other future tools) entries
     toolsBuilds = catMaybes [ enabledToMaybe (hlint c) BuildHLint, enabledToMaybe (weeder c) BuildWeeder ]
       where enabledToMaybe Enabled        = Just
             enabledToMaybe EnabledLenient = Just
@@ -84,7 +86,8 @@ toTravis hash c = runOut $ mapM_ outNl $
             enabledToMaybe EnabledLenient = Just
             enabledToMaybe Disabled       = const Nothing
 
-    scriptResolverCase = concatMap matchLines $ map (makeBuildFromEnv c) $ bs
+    -- all the resolver cases inside the travis file
+    scriptResolverCases = concatMap matchLines $ map (makeBuildFromEnv c) $ bs
       where
         matchLines build =
             [ "      " ++ buildName build ++ ")"
@@ -93,13 +96,21 @@ toTravis hash c = runOut $ mapM_ outNl $
             , "        ;;"
             ]
 
-    envs = concatMap env (map toBuildTypes bs ++ toolsBuilds)
-    failureEnvs = concatMap env (map toBuildTypes (filter isAllowedFailure bs) ++ toolsOptionalBuilds)
+    envs = concatMap env (concatMap toBuildTypes bs ++ toolsBuilds)
+    failureEnvs = concatMap env (concatMap toBuildTypes (filter isAllowedFailure bs) ++ toolsOptionalBuilds)
       where isAllowedFailure (BuildEnv _ simples _) = AllowedFailure `elem` simples
 
-    toBuildTypes (BuildEnv r simples kvs) =
-        BuildStack r (maybe Linux (\os -> if os == "osx" then OsX else Linux) $ lookup Os kvs)
+    -- Create a travis BuildStack from a BuildEnv
+    toBuildTypes buildEnv@(BuildEnv r simples kvs) =
+        map toBuildStack platforms 
+        -- BuildStack r (maybe Linux (\os -> if os == "osx" then OsX else Linux) $ lookup Os kvs)
+      where
+        build = makeBuildFromEnv c buildEnv
+        toBuildStack platform = BuildStack r platform
+        travisSupportedPlatforms = [Linux, OsX]
+        platforms = filter (flip elem travisSupportedPlatforms) $ buildPlatforms build
 
+    -- Each travis environment target in the matrix
     env BuildHLint =
         [ (++) "  - " $ Y.toString $ Y.dict
             [ (Y.key "env", Y.string "BUILD=hlint"), (Y.key "compiler", Y.string "hlint"), language ] ]
@@ -115,4 +126,3 @@ toTravis hash c = runOut $ mapM_ outNl $
     addOn = (Y.key "addons", Y.dict [ (Y.key "apt", Y.dict [ (Y.key "packages", pkgs) ]) ] )
       where pkgs = Y.list $ map Y.string (["libgmp-dev"] ++ travisAptAddOn c)
     language = (Y.key "language", Y.string "generic")
-
