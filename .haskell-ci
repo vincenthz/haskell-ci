@@ -1,7 +1,7 @@
 # compiler supported and their equivalent LTS
 compiler: ghc-8.0 lts-9.21
 compiler: ghc-8.2 lts-11.1
-compiler: ghc-8.4 ghc-8.4
+compiler: ghc-8.4 nightly-2018-06-23
 
 # options
 # option: alias x=y z=v
@@ -9,7 +9,7 @@ compiler: ghc-8.4 ghc-8.4
 # builds 
 build: ghc-8.2 os=linux,osx,windows
 build: ghc-8.0 os=linux,windows
-build: ghc-8.4 allowed-failure extradep=cryptonite-0.25 extradep=foundation-0.0.20 extradep=basement-0.0.7 extradep=memory-0.14.16
+build: ghc-8.4 os=linux,windows
 
 # packages
 package: '.'
