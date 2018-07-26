@@ -9,7 +9,7 @@ like weeder, hlint.
 
 ## TODO:
 
-* Add appveyor support
+* binary releases and self-usage
 * Add coverall
 
 ## Getting started
