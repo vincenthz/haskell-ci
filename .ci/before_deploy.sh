@@ -19,7 +19,7 @@ main() {
     INSTALLED_ROOT=$(stack path --local-install-root)
 
     echo $TRAVIS_OS_NAME
-    cp $INSTALLED_ROOT/bin
+    ls $INSTALLED_ROOT/bin
     cp $INSTALLED_ROOT/bin/haskell-ci $stage/
 
     cd $stage
