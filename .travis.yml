@@ -70,4 +70,17 @@ script:
   esac
   set +ex
 
+before_deploy:
+  - sh .ci/before_deploy.sh
 
+deploy:
+  api_key:
+    secure: qGOFfT4BRPOpE3kgxHiGe+KUYc6GnhE0OSw09gwyaofbUuLUnXipZyJQywJydVduHlb0vlGcCLoRhemL+faugZTQw+ge0T3Y+rn/1J7aXyEKOZVvMG6QDEswuLdOJHJQHMbsAp71xV2rv8wC/c8U98buCQhz0B1TarGpdJqVFDl/MeY2ywExzKbU8Rw3zf6+koyUciJoybeF4f0uKwpqydnZ0ko4RAdfCzQgDKOvtpQ6K0eFHlHPUvQgu0m0+Anmz4Gw2FYf5hRsO4WBobox4Nve0w1iX7XFy3+yY22i9D/oQMU/8RVIAv3gwH/TClxknUR4N0RFTuwVLE6KMhHEK+NApiMOw4fr65OICViReWl744JrUQoSsxjegAR909r0UpnYPiCOCpqe5m9uwvms3JX1vIXbpoVc/ndLasMQSMBRwAYSivBsY2lguJnZRYoR9xmkXWz3ldu2PYQsgqZtSstfCrx4LStCx7MHwSs2UuwBelVEuawz2JrEp0utxLPLbIs+1zbRii0B0i8dCNSBY/vcB6KysTtMDjauIL2FSqz45cnzJHLt3h5sb+AmINOeaU0ut+fkU3P8c69+yd3eOMczMqswdT0YOx63bMj5ugkgHI+HbVcZHvlCMVHTyngzJbMlOhmchy35yxPp44c26fgWpKpZMF0+qWVXeMIiQJ4=
+  file_glob: true
+  file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
+  on:
+    # only stable rust version will create binary releases
+    condition: $TRAVIS_RUST_VERSION = stable
+    tags: true
+  provider: releases
+  skip_cleanup: true
