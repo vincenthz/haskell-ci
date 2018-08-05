@@ -23,7 +23,7 @@ main() {
     cp $INSTALLED_ROOT/bin/haskell-ci $stage/
 
     cd $stage
-    tar czf $src/haskell-ci-$TRAVIS_TAG-$TARGET.tar.gz *
+    tar czf $src/haskell-ci-$TRAVIS_TAG-$BUILD.tar.gz *
     cd $src
 
     rm -rf $stage
