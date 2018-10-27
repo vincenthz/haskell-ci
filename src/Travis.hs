@@ -30,7 +30,7 @@ toTravis hash c = runOut $ mapM_ outNl $
     ] ++ failureEnvs ++
     [ ""
     , "install:"
-    , "  - export PATH=$HOME/.local/bin::$HOME/.cabal/bin:$PATH"
+    , "  - export PATH=$HOME/.local/bin:$HOME/.cabal/bin:$PATH"
     , "  - mkdir -p ~/.local/bin"
     , "  - |"
     , "    case \"$BUILD\" in"
