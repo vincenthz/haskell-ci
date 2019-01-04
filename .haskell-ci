@@ -1,20 +1,22 @@
 # compiler supported and their equivalent LTS
 compiler: ghc-8.0 lts-9.21
 compiler: ghc-8.2 lts-11.1
-compiler: ghc-8.4 nightly-2018-06-23
+compiler: ghc-8.4 lts-12.26
+compiler: ghc-8.6 lts-13.1
 
 # options
 # option: alias x=y z=v
 
 # builds 
-build: ghc-8.2 os=linux,osx,windows
-build: ghc-8.0 os=linux,windows
+build: ghc-8.2 os=linux
+build: ghc-8.0 os=linux
 build: ghc-8.4 os=linux,windows
+build: ghc-8.6 os=linux,osx,windows
 
 # packages
 package: '.'
 
 # extra builds
-hlint: allowed-failure
-weeder: allowed-failure
+hlint: false
+weeder: false
 coverall: false
