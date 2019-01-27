@@ -126,5 +126,5 @@ main = do
         --    cfg <- readHci
         --    let builds = map (resolveBuilds cfg) $ builds cfg
         _            -> do
-            hPutStrLn stderr "usage: haskell-ci [generate|travis|stack <name>|update]"
+            hPutStrLn stderr "usage: haskell-ci [generate|travis|appveyor|update|stack <name>]"
             exitFailure
