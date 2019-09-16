@@ -29,7 +29,12 @@ dict kv = Content ("{ " ++ intercalate ", " (map toKv kv) ++ " }")
   where toKv (Key k,v) = k ++ ": " ++ toString v
 
 string :: String -> Content
-string = Content
+string s
+   | needEscape = qstring s
+   | otherwise  = Content s
+  where
+    needEscape = maybe False (const True) $ find (flip elem dict) s
+    dict = [':']
 
 qstring :: String -> Content
 qstring s = Content ("\"" ++ s ++ "\"")
