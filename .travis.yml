@@ -7,15 +7,18 @@ cache:
   - $HOME/.stack
   - $HOME/.local
 
-matrix:
+language: generic
+os: linux
+
+jobs:
   include:
-  - { env: BUILD=stack RESOLVER=ghc-8.0, compiler: ghc-8.0, language: generic, addons: { apt: { packages: [ libgmp-dev ] } } }
-  - { env: BUILD=stack RESOLVER=ghc-8.2, compiler: ghc-8.2, language: generic, addons: { apt: { packages: [ libgmp-dev ] } } }
-  - { env: BUILD=stack RESOLVER=ghc-8.4, compiler: ghc-8.4, language: generic, addons: { apt: { packages: [ libgmp-dev ] } } }
-  - { env: BUILD=stack RESOLVER=ghc-8.6, compiler: ghc-8.6, language: generic, addons: { apt: { packages: [ libgmp-dev ] } } }
-  - { env: BUILD=stack RESOLVER=ghc-8.6, compiler: ghc-8.6, language: generic, addons: { apt: { packages: [ libgmp-dev ] } }, os: osx }
-  - { env: BUILD=stack RESOLVER=ghc-8.8, compiler: ghc-8.8, language: generic, addons: { apt: { packages: [ libgmp-dev ] } } }
-  - { env: BUILD=stack RESOLVER=ghc-8.8, compiler: ghc-8.8, language: generic, addons: { apt: { packages: [ libgmp-dev ] } }, os: osx }
+  - { env: BUILD=stack RESOLVER=ghc-8.0, addons: { apt: { packages: [ libgmp-dev ] } } }
+  - { env: BUILD=stack RESOLVER=ghc-8.2, addons: { apt: { packages: [ libgmp-dev ] } } }
+  - { env: BUILD=stack RESOLVER=ghc-8.4, addons: { apt: { packages: [ libgmp-dev ] } } }
+  - { env: BUILD=stack RESOLVER=ghc-8.6, addons: { apt: { packages: [ libgmp-dev ] } } }
+  - { env: BUILD=stack RESOLVER=ghc-8.6, addons: { apt: { packages: [ libgmp-dev ] } }, os: osx }
+  - { env: BUILD=stack RESOLVER=ghc-8.8, addons: { apt: { packages: [ libgmp-dev ] } } }
+  - { env: BUILD=stack RESOLVER=ghc-8.8, addons: { apt: { packages: [ libgmp-dev ] } }, os: osx }
   allow_failures:
 
 install:

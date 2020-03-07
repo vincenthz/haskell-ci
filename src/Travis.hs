@@ -20,7 +20,10 @@ toTravis hash c = runOut $ mapM_ outNl $
     , "  - $HOME/.stack"
     , "  - $HOME/.local"
     , ""
-    , "matrix:"
+    , "language: generic"
+    , "os: linux"
+    , ""
+    , "jobs:"
     , "  include:"
     ] ++ envs ++
     [ "  allow_failures:"
@@ -99,7 +102,7 @@ toTravis hash c = runOut $ mapM_ outNl $
 
     -- Create a travis BuildStack from a BuildEnv
     toBuildTypes buildEnv@(BuildEnv r simples kvs) =
-        map toBuildStack platforms 
+        map toBuildStack platforms
         -- BuildStack r (maybe Linux (\os -> if os == "osx" then OsX else Linux) $ lookup Os kvs)
       where
         build = makeBuildFromEnv c buildEnv
@@ -110,16 +113,15 @@ toTravis hash c = runOut $ mapM_ outNl $
     -- Each travis environment target in the matrix
     env BuildHLint =
         [ (++) "  - " $ Y.toString $ Y.dict
-            [ (Y.key "env", Y.string "BUILD=hlint"), (Y.key "compiler", Y.string "hlint"), language ] ]
+            [ (Y.key "env", Y.string "BUILD=hlint") ] ]
     env BuildWeeder =
         [ (++) "  - " $ Y.toString $ Y.dict
-            [ (Y.key "env", Y.string "BUILD=weeder"), (Y.key "compiler", Y.string "weeder"), language, addOn ] ]
+            [ (Y.key "env", Y.string "BUILD=weeder"), addOn ] ]
     env (BuildStack compiler ostype) =
         [ (++) "  - " $ Y.toString $ Y.dict $
             [ (Y.key "env", Y.string ("BUILD=stack RESOLVER=" ++ compiler))
-            , (Y.key "compiler", Y.string compiler), language, addOn
+            , addOn
             ] ++ (if ostype == OsX then [ (Y.key "os", Y.string "osx") ] else [])
         ]
     addOn = (Y.key "addons", Y.dict [ (Y.key "apt", Y.dict [ (Y.key "packages", pkgs) ]) ] )
       where pkgs = Y.list $ map Y.string (["libgmp-dev"] ++ travisAptAddOn c)
-    language = (Y.key "language", Y.string "generic")
