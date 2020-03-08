@@ -62,7 +62,7 @@ toTravis hash c = runOut $ mapM_ outNl $
     , "      curl -sL https://raw.github.com/ndmitchell/hlint/master/misc/travis.sh | sh -s . --cpp-define=__GLASGOW_HASKELL__=800 --cpp-define=x86_64_HOST_ARCH=1 --cpp-define=mingw32_HOST_OS=1"
     , "      ;;"
     , "    weeder)"
-    , "      stack --no-terminal build --install-ghc --test --no-run-tests --bench --no-run-benchmarks"
+    , "      stack --no-terminal build --install-ghc --ghc-options=\"-ddump-to-file -ddump-hi\" --test --no-run-tests --bench --no-run-benchmarks"
     , "      curl -sL https://raw.github.com/ndmitchell/weeder/master/misc/travis.sh | sh -s ."
     , "      ;;"
     , "  esac"
